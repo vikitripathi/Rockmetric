@@ -8,7 +8,7 @@ use Aws\Common\Aws;
 use Aws\Ses\SesClient;
 use Aws\Common\Credentials\Credentials;
 
-$credentials = new Credentials('AKIAJJ3WVG5MZE5FRSTQ', 'nChpEQQFDdq5DviCON7lv+kMT6n0oqu/xo4qLV63');
+$credentials = new Credentials('---------------------', '------------------');
 
 // Instantiate the S3 client with your AWS credentials
 $client = SesClient::factory(array(
