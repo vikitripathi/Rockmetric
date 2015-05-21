@@ -186,7 +186,7 @@ $jsonData = '[ {
   }
 } ]';
 
-$result6=$domain->uploadDocuments(array(
+$result_uploadDocument=$domain->uploadDocuments(array(
     'documents'=>$jsonData,
     'contentType'=>'application/json'
     ));
