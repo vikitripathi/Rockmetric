@@ -22,7 +22,11 @@ $result1 = $client->createDomain(array(
 ));
 
 
-//configure access
+
+
+
+//json to be  passed to updateServiceAccessPolicies
+//*check about escaping all double quotes within the string
 $policy_json='{
   "Version": "2012-10-17",
   "Statement": [
@@ -40,11 +44,12 @@ $policy_json='{
   ]
 }';
 
+//configure access policy
 $result_access = $client->updateServiceAccessPolicies(array(
     // DomainName is required
     'DomainName' => 'people',
     // AccessPolicies is required
-    'AccessPolicies' => $policy_json, //what should it be?
+    'AccessPolicies' => $policy_json, 
 ));
 
 
@@ -66,7 +71,7 @@ $result_availability = $client->updateAvailabilityOptions(array(
     // DomainName is required
     'DomainName' => 'people',
     // MultiAZ is required
-    'MultiAZ' => true,//write any one either true or false!
+    'MultiAZ' => true,
 ));
 
 
@@ -77,18 +82,11 @@ $result_domainInfo = $client->describeDomains(array(
 
 
 
-//list domains
-// $iterator = $client->getIterator('DescribeDomains');
-// foreach ($iterator as $domain) {
-//     echo "{$domain['DomainName']}: {$domain['SearchService']['Endpoint']}\n";
-// }
-
-
 
 //prepare data to be uploaded for cloudsearch 
 
 //configure the index fields
-$result_indexField = $client->defineIndexField(array(
+$result_nameIndexField = $client->defineIndexField(array(
     // DomainName is required
     'DomainName' => 'people',
     // IndexField is required
@@ -98,28 +96,41 @@ $result_indexField = $client->defineIndexField(array(
         // IndexFieldType is required
         'IndexFieldType' => 'text',
         'TextOptions' => array(            
-            'SourceField' => 'name',
+            'SourceField' => 'name',  
             'ReturnEnabled' => true,
             'SortEnabled' => true,
             'HighlightEnabled' => true, 
             'AnalysisScheme' => 'English',
         ),        
-    ),
-    'IndexField'=>array(
-    	// IndexFieldName is required
+    ),    
+));
+
+$result_emailIndexField = $client->defineIndexField(array(
+    // DomainName is required
+    'DomainName' => 'people',
+    // IndexField is required
+    'IndexField' => array(
+        // IndexFieldName is required
         'IndexFieldName' => 'email',
         // IndexFieldType is required
         'IndexFieldType' => 'text',
         'TextOptions' => array(            
-            'SourceField' => 'email',
+            'SourceField' => 'email',  
             'ReturnEnabled' => true,
             'SortEnabled' => true,
             'HighlightEnabled' => true,
             'AnalysisScheme' => 'English',
-        ), 
-    ),
-    'IndexField'=>array(
-    	// IndexFieldName is required
+        ),        
+    ), 
+));
+
+
+$result_telephoneIndexField = $client->defineIndexField(array(
+    // DomainName is required
+    'DomainName' => 'people',
+    // IndexField is required
+    'IndexField' => array(
+        // IndexFieldName is required
         'IndexFieldName' => 'telephone',
         // IndexFieldType is required
         'IndexFieldType' => 'int',
@@ -129,34 +140,101 @@ $result_indexField = $client->defineIndexField(array(
             'SearchEnabled' => true,
             'ReturnEnabled' => true,
             'SortEnabled' => true,
-        ),
-    ),
-    'IndexField'=>array(
-    	// IndexFieldName is required
+        ),        
+    ), 
+));
+
+$result_userIdIndexField = $client->defineIndexField(array(
+    // DomainName is required
+    'DomainName' => 'people',
+    // IndexField is required
+    'IndexField' => array(
+        // IndexFieldName is required
         'IndexFieldName' => 'user_id',
         // IndexFieldType is required
         'IndexFieldType' => 'int',
-    	'IntOptions' => array(            
+        'IntOptions' => array(            
             'SourceField' => 'user_id',
             'FacetEnabled' => true,
             'SearchEnabled' => true,
             'ReturnEnabled' => true,
             'SortEnabled' => true,
+        ),      
+    ), 
+));
+
+
+
+//configuring the analysis scheme
+$result_analysisScheme = $client->defineAnalysisScheme(array(
+    // DomainName is required
+    'DomainName' => 'people',
+    // AnalysisScheme is required
+    'AnalysisScheme' => array(
+        // AnalysisSchemeName is required
+        'AnalysisSchemeName' => 'myscheme',
+        // AnalysisSchemeLanguage is required
+        'AnalysisSchemeLanguage' => 'en', 
+        'AnalysisOptions' => array(
+            // 'Synonyms' => 'string',
+            'Stopwords' => '["a", "an", "the", "of"]', //*check about escaping all double quotes within the string
+            // 'StemmingDictionary' => 'string',
+            // 'JapaneseTokenizationDictionary' => 'string',
+            'AlgorithmicStemming' => 'light',
         ),
     ),
 ));
 
 
+//updating the index field with the analysis scheme
+$update_nameIndexField = $client->defineIndexField(array(
+    // DomainName is required
+    'DomainName' => 'people',
+    // IndexField is required
+    'IndexField' => array(
+        // IndexFieldName is required
+        'IndexFieldName' => 'name',
+        // IndexFieldType is required
+        'IndexFieldType' => 'text',
+        'TextOptions' => array(            
+            'AnalysisScheme' => 'myscheme',//myscheme
+        ),        
+    ),    
+));
 
-//Every document must have a unique document ID and at least one field.
-//uploading the data/document usin http endpoint
-//getdomainclient  method uses the CloudSearch configuration API to retrieve the domain endpoint and instantiate the CloudSearchDomainClient 
+$update_emailIndexField = $client->defineIndexField(array(
+    // DomainName is required
+    'DomainName' => 'people',
+    // IndexField is required
+    'IndexField' => array(
+        // IndexFieldName is required
+        'IndexFieldName' => 'email',
+        // IndexFieldType is required
+        'IndexFieldType' => 'text',
+        'TextOptions' => array(            
+            'AnalysisScheme' => 'myscheme',//myscheme
+        ),        
+    ), 
+));
 
+
+//rebuilding the index
+$rebuildingIndexScheme = $client->indexDocuments(array(
+    // DomainName is required
+    'DomainName' => 'string',
+));
+
+
+
+
+//get the domain endpoint
 $domain=$client->getDomainClient('people',array(
     'credentials' => $credentials,
     ));
 
+
 //document batches to be uploaded to cloudsearch
+//*check about escaping all double quotes within the string
 $jsonData = '[ {
   "type" : "add",
   "id" : "data.csv_1",
@@ -186,20 +264,45 @@ $jsonData = '[ {
   }
 } ]';
 
-$result6=$domain->uploadDocuments(array(
+//upload the document batches
+$result_uploadDocuments=$domain->uploadDocuments(array(
     'documents'=>$jsonData,
     'contentType'=>'application/json'
     ));
 
 
-//if some changes to index of the document then uncomment  and run for confguring indexing again
-// $result8 = $client->indexDocuments(array(
-//     // DomainName is required
-//     'DomainName' => 'string',
-// ));
+
+// Use the search operation 
+$result_search = $domain->search(array('query' => 'abhishekolder'));   
+$hitCount = $result_search->getPath('hits/found'); //hits/hit for the document that is found
+//print 
 
 
-//left api searching /  suggesting / analytics
 
+//add a suggester
+$result_suggester = $client->defineSuggester(array(
+    // DomainName is required
+    'DomainName' => 'people',
+    // Suggester is required
+    'Suggester' => array(
+        // SuggesterName is required
+        'SuggesterName' => 'mysuggester',
+        // DocumentSuggesterOptions is required
+        'DocumentSuggesterOptions' => array(
+            // SourceField is required
+            'SourceField' => 'name',
+            'FuzzyMatching' => 'low',
+            'SortExpression' => 'user_id',
+        ),
+    ),
+));
+
+//indexing after creating suggester
+$result_indexing = $client->indexDocuments(array(
+    // DomainName is required
+    'DomainName' => 'string',
+));
+
+//retrieve suggestion from suggester 
 
 ?>
