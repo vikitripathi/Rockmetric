@@ -1,8 +1,7 @@
 # Rockmetric
 
-run composer to install the dependencies
-
-run the aws_ses.php 
+- Run composer.json to install the dependencies
+- Run the files in folder ses/ or cloudsearch/ to test AWS 
 
 ##To Do
 1. In receiver.php , To maintain the stream resource  do something like this 
