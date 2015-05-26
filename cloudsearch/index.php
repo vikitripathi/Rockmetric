@@ -8,7 +8,7 @@ use Aws\Common\Aws;
 use Aws\CloudSearch\CloudSearchClient;
 use Aws\Common\Credentials\Credentials;
 
-$credentials = new Credentials('AKIAJGNXPG7B5Z7D2XNQ', '7BnCTRL/k2XH4/NHn22HdxbnwDCL/DM81MjWZsBR');
+$credentials = new Credentials('**********************', '*************************');
 
 $client = CloudSearchClient::factory(array(
     'credentials' => $credentials,
