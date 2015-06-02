@@ -32,47 +32,47 @@ $client = SesClient::factory(array(//calling function using namespace
 //other related functions
 //ListIdentities
 //GetIdentityVerificationAttributes
-$result_verifyEmailId = $client->verifyEmailIdentity(array(
-    // EmailAddress is required
-    'EmailAddress' => 'abhishekdutt.iitr@gmail.com',
-));
+// $result_verifyEmailId = $client->verifyEmailIdentity(array(
+//     // EmailAddress is required
+//     'EmailAddress' => 'abhishekdutt.iitr@gmail.com',
+// ));
 
-// //use  GetIdentityVerificationAttributes to get the status of the email address that is it ready to perofrm the next sending operations?
-$result_verificationStatus = $client->getIdentityVerificationAttributes(array(
-    // Identities is required
-    'Identities' => array('abhishekdutt.iitr@gmail.com',),
-));
+// // //use  GetIdentityVerificationAttributes to get the status of the email address that is it ready to perofrm the next sending operations?
+// $result_verificationStatus = $client->getIdentityVerificationAttributes(array(
+//     // Identities is required
+//     'Identities' => array('abhishekdutt.iitr@gmail.com',),
+// ));
 
 
 
-//Authentication
+// //Authentication
 
-//manage Easy DKIM in AWS SES
-$result_DKIMtokens = $client->verifyDomainDkim(array(
-    // Domain is required
-    'Domain' => 'rockmetric.com',
-));
-//Returns a set of DKIM tokens for a domain
-// DKIM tokens are character strings that represent your domain's 
-//identity. Using these tokens, you will need to create DNS CNAME records that point to DKIM public keys hosted by Amazon SES.
-print_r($result1);
-echo "  <br/> ";
-print_r($result1['DkimTokens'][0]);
-echo " <br>";
-//below are the TOken Names & corresponding values to be used in updating DNS setting using AWS Route53
-//store them in session to be used  in the route53Config.php file
-//set session variable
-$_SESSION["value1"]=$result1['DkimTokens'][0].".dkim.amazonses.com";
-$_SESSION["name1"]=$result1['DkimTokens'][0]."._domainkey .rockmetric.com.";
+// //manage Easy DKIM in AWS SES
+// $result_DKIMtokens = $client->verifyDomainDkim(array(
+//     // Domain is required
+//     'Domain' => 'rockmetric.com',
+// ));
+// //Returns a set of DKIM tokens for a domain
+// // DKIM tokens are character strings that represent your domain's 
+// //identity. Using these tokens, you will need to create DNS CNAME records that point to DKIM public keys hosted by Amazon SES.
+// print_r($result1);
+// echo "  <br/> ";
+// print_r($result1['DkimTokens'][0]);
+// echo " <br>";
+// //below are the TOken Names & corresponding values to be used in updating DNS setting using AWS Route53
+// //store them in session to be used  in the route53Config.php file
+// //set session variable
+// $_SESSION["value1"]=$result1['DkimTokens'][0].".dkim.amazonses.com";
+// $_SESSION["name1"]=$result1['DkimTokens'][0]."._domainkey .rockmetric.com.";
 
-$_SESSION["value2"]=$result1['DkimTokens'][1].".dkim.amazonses.com";
-$_SESSION["name2"]=$result1['DkimTokens'][1]."._domainkey .rockmetric.com.";
+// $_SESSION["value2"]=$result1['DkimTokens'][1].".dkim.amazonses.com";
+// $_SESSION["name2"]=$result1['DkimTokens'][1]."._domainkey .rockmetric.com.";
 
-$_SESSION["value3"]=$result1['DkimTokens'][2].".dkim.amazonses.com";
-$_SESSION["name3"]=$result1['DkimTokens'][2]."._domainkey .rockmetric.com.";
-//the above session variables can be simplified by doing the concatination in the route53Config.php
+// $_SESSION["value3"]=$result1['DkimTokens'][2].".dkim.amazonses.com";
+// $_SESSION["name3"]=$result1['DkimTokens'][2]."._domainkey .rockmetric.com.";
+// //the above session variables can be simplified by doing the concatination in the route53Config.php
 
-echo $_SESSION["value1"]."  <---  ".$_SESSION["name1"];
+// echo $_SESSION["value1"]."  <---  ".$_SESSION["name1"];
 
 echo " <br> <br> ______________________________________________________________________ <br>";
 
@@ -85,11 +85,11 @@ A set of DKIM tokens that represent the identity. If the identity is an email ad
 Whether Amazon SES has successfully verified the DKIM tokens published in the domain's DNS. This information is only returned for domain
 name identities, not for email addresses.
 */
-$result_DKIM_attribute = $client->getIdentityDkimAttributes(array(
-    // Identities is required
-    'Identities' => array('rockmetric.com',),
-));
-print_r($result_DKIM_attribute);
+// $result_DKIM_attribute = $client->getIdentityDkimAttributes(array(
+//     // Identities is required
+//     'Identities' => array('rockmetric.com',),
+// ));
+//print_r($result_DKIM_attribute);
 //check by  above whether dkim is verified or not then go to next step
 
 
@@ -113,13 +113,13 @@ echo "            ______________________________________________________________
 Given an identity (email address or domain), sets the Amazon Simple Notification Service (Amazon SNS) topic to which Amazon SES 
 will publish bounce, complaint, and/or delivery notifications for emails sent with that identity as the Source .
  */
-
+//details http://docs.aws.amazon.com/cli/latest/reference/ses/set-identity-notification-topic.html
 $ComplaintNotificationObject = $client->setIdentityNotificationTopic(array(
     // Identity is required
     'Identity' => 'abhishekdutt.iitr@gmail.com',
     // NotificationType is required
     'NotificationType' => 'Complaint',//	Bounce | Complaint | Delivery
-    'SnsTopic' => 'ses-complaint',
+    'SnsTopic' => 'arn:aws:sns:us-west-2:386987565549:ses-complaint',      //the arn of the compalaint topic
 ));
 echo "            ______________________________________________________________________        </br></br>        ";
 print_r($ComplaintNotificationObject);
@@ -130,7 +130,7 @@ $BounceNotificationObject = $client->setIdentityNotificationTopic(array(
     'Identity' => 'abhishekdutt.iitr@gmail.com',
     // NotificationType is required
     'NotificationType' => 'Bounce',//    Bounce | Complaint | Delivery
-    'SnsTopic' => 'ses-bounce',
+    'SnsTopic' => 'arn:aws:sns:us-west-2:386987565549:ses-bounce',
 ));
 echo "            ______________________________________________________________________        </br></br>        ";
 print_r($BounceNotificationObject);
@@ -141,7 +141,7 @@ $DeliveryNotificationObject = $client->setIdentityNotificationTopic(array(
     'Identity' => 'abhishekdutt.iitr@gmail.com',
     // NotificationType is required
     'NotificationType' => 'Delivery',//    Bounce | Complaint | Delivery
-    'SnsTopic' => 'ses-delivery',
+    'SnsTopic' => 'arn:aws:sns:us-west-2:386987565549:ses-delivery',
 ));
 echo "            ______________________________________________________________________        </br></br>        ";
 print_r($DeliveryNotificationObject);
